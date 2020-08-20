@@ -45,10 +45,14 @@ tieneIngredientesPara(Jugador,Elemento):-
     tieneTodoLoQueHaceFalta(Jugador,Elemento).
  
 tieneTodoLoQueHaceFalta(Jugador,Elemento):-
-    jugador(Jugador,Inventario),
+    jugador(Jugador,_),
     elemento(Elemento,_),
-    forall(elementoNecesarioPara(Elemento,Necesario), member(Necesario,Inventario)).
-    
+    forall(elementoNecesarioPara(Elemento,Necesario), poseeEnInventario(Jugador,Necesario)).
+
+poseeEnInventario(Jugador,ElementoBuscado):-
+    jugador(Jugador,Inventario),
+    member(ElementoBuscado,Inventario).
+
 elementoNecesarioPara(Elemento,Necesario):-
     elemento(Elemento,Necesarios),
     member(Necesario, Necesarios).
@@ -105,9 +109,19 @@ Saber si alguien es todopoderoso, que es cuando tiene todos los elementos primit
 y además cuenta con herramientas que sirven para construir cada elemento que no tenga.
 Por ejemplo, cata es todopoderosa, pero beto no. */
 
-/* esTodoPoderoso(Jugador):-
+esTodoPoderoso(Jugador):-
     tieneTodosLosElementosPrimitivos(Jugador).
-    cuentaConHerramientasParaElementosFaltantes(Jugador).
+%    cuentaConHerramientasParaElementosFaltantes(Jugador).
 
 tieneTodosLosElementosPrimitivos(Jugador):-
-     */
+    jugador(Jugador,_),
+    forall(elementoPrimitivo(Elemento),poseeEnInventario(Jugador,Elemento)).
+
+elementoPrimitivo(Elemento):-
+    jugador(_,Elementos),
+    member(Elemento,Elementos),
+    noSeConstruyeAPartirDeNada(Elemento).
+
+noSeConstruyeAPartirDeNada(Elemento):-
+    not(elemento(Elemento,_)).
+
