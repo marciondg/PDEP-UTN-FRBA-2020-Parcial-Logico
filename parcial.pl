@@ -102,7 +102,7 @@ utensillosSoportanIngredientes(Jugador,CantidadDeIngredientes):-
 
 utensillosSoportanIngredientes(Jugador,CantidadDeIngredientes):-
     herramienta(Jugador,circulo(Diametro,Niveles)),
-    Capacidad is (Diametro/100) * Niveles,
+    Capacidad is (Diametro/100) * Niveles, %En la base el diametro esta en centimetros y el requerimiento de este punto me pide metros
     Capacidad > CantidadDeIngredientes.
 
 /* Punto 5
@@ -119,21 +119,24 @@ tieneTodosLosElementosPrimitivos(Jugador):-
     forall(elementoPrimitivo(Elemento),poseeEnInventario(Jugador,Elemento)).
 
 cuentaConHerramientasParaElementosFaltantes(Jugador):-
-    forall(elementoFaltante(Jugador,ElementoFaltante),cuentaConHerramientasNecesarias(Jugador,ElementoFaltante)).
+    forall(elementoFaltante(Jugador,ElementoFaltante),cuentaConHerramientasNecesarias(Jugador,ElementoFaltante)). 
+    %No necesito que sea inversible porque esTodoPoderoso ya lo es gracias al predicado anterior
 
 elementoPrimitivo(Elemento):-
     elementosExistentes(Elementos),
     member(Elemento,Elementos),
     noSeConstruyeAPartirDeNada(Elemento).
 
+%Obtengo "todos los elementos que existen." Cualquier otro que no esté en la base de conocimiento no existe -> Universo cerrado
 elementosExistentes(Elementos):-
-    jugador(_,Elementos).
+    jugador(_,Elementos). %Como parte del inventario
 elementosExistentes(Elementos):-
-    elemento(_,Elementos).
+    elemento(_,Elementos).%Como ingrediente de otro elemento
 elementosExistentes(Elementos):-
-    findall(Elemento,elemento(Elemento,_),Elementos).
-%Con estas clausulas resuelvo que en caso de que se agrege un elemento en alguna parte de la base de conocimiento 
-%(ya sea apareciendo en el inventario de un jugador, en los ingredientes de un elemento, o comoo un nuevo elemento a construir) pueda ser reconocido
+    findall(Elemento,elemento(Elemento,_),Elementos). %Como elemento a construir 
+
+%Con estas clausulas me ahorro problemas a futuro, ya que en caso de que se agregue el Elemento de Spinetta o cualquier otro nuevo en nuestra base de conocimiento
+%(ya sea apareciendo en el inventario de un jugador, en los ingredientes de un elemento, o como un nuevo elemento a construir), podrá ser reconocido por el programa.
 
 noSeConstruyeAPartirDeNada(Elemento):-
     not(elemento(Elemento,_)).
@@ -170,6 +173,8 @@ Mencionar un lugar de la solución donde se haya hecho uso del concepto de unive
     Concepto de universo cerrado: todo lo que no se afirme, es falso.
         Al modelar la base de conocimiento a partir de los requerimientos, por ejemplo, no afirmamos nada acerca de "cata no posee vapor". 
         Directamente no se modeló ese hecho.
+        En el punto 5, cuando me referí a elementos existentes también tuve en cuenta el concepto. Solo existen los elementos que fueron modelados en la base. 
+        Por ejemplo, el dinero no existe.
 */
 
 
