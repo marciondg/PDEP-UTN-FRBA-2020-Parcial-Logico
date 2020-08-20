@@ -26,7 +26,7 @@ herramienta(cata, circulo(100,5)).
 jugador(ana,[agua,vapor,tierra,hierro]).
 jugador(beto,Elementos):-
     jugador(ana,Elementos).
-jugador(cata,[fuego,tierra,agua,aire]).
+jugador(cata,[fuego,tierra,agua,aire]). %Por concepto de universo cerrado, no se modela que cata no tiene vapor.
 
 %elemento(Nombre,ElementosNecesarios).
 elemento(pasto,[agua,tierra]).
@@ -86,6 +86,7 @@ cuentaConHerramientasNecesarias(Jugador,Elemento):-
     herramienta(Jugador,libro(vida)).
 
 cuentaConHerramientasNecesarias(Jugador,Elemento):-
+    elemento(Elemento,_), %Hago inversible este predicado. Me sirve para el punto 8
     not(estaVivo(Elemento)),
     herramienta(Jugador,libro(inerte)).
 
@@ -163,3 +164,25 @@ cantidadCosasAConstruir(Jugador,CantidadCosas):-
     findall(Elemento,puedeConstruir(Jugador,Elemento),Elementos),
     length(Elementos,CantidadCosas).
 
+/* Punto 7
+Mencionar un lugar de la solución donde se haya hecho uso del concepto de universo cerrado.
+
+    Concepto de universo cerrado: todo lo que no se afirme, es falso.
+        Al modelar la base de conocimiento a partir de los requerimientos, por ejemplo, no afirmamos nada acerca de "cata no posee vapor". 
+        Directamente no se modeló ese hecho.
+*/
+
+
+/* Punto 8
+Hacer una nueva versión del predicado puedeConstruir (se puede llamar puedeLlegarATener) para considerar todo lo que podría construir si va combinando todos los elementos 
+que tiene (y siempre y cuando tenga alguna herramienta que le sirva para construir eso). 
+Un jugador puede llegar a tener un elemento si o bien lo tiene, o bien tiene alguna herramienta que le sirva para hacerlo 
+y cada ingrediente necesario para construirlo puede llegar a tenerlo a su vez.
+Por ejemplo, cata podría llegar a tener una play station, pero beto no. */
+
+puedeLlegarATener(Jugador,Elemento):-
+    poseeEnInventario(Jugador,Elemento).
+
+puedeLlegarATener(Jugador,Elemento):-
+    cuentaConHerramientasNecesarias(Jugador,Elemento),
+    forall(elementoNecesarioPara(Elemento,Necesario),puedeLlegarATener(Jugador,Necesario)).
