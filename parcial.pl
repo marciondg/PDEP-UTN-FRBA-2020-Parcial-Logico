@@ -110,18 +110,56 @@ y además cuenta con herramientas que sirven para construir cada elemento que no
 Por ejemplo, cata es todopoderosa, pero beto no. */
 
 esTodoPoderoso(Jugador):-
-    tieneTodosLosElementosPrimitivos(Jugador).
-%    cuentaConHerramientasParaElementosFaltantes(Jugador).
+    tieneTodosLosElementosPrimitivos(Jugador),
+    cuentaConHerramientasParaElementosFaltantes(Jugador).
 
 tieneTodosLosElementosPrimitivos(Jugador):-
     jugador(Jugador,_),
     forall(elementoPrimitivo(Elemento),poseeEnInventario(Jugador,Elemento)).
 
+cuentaConHerramientasParaElementosFaltantes(Jugador):-
+    forall(elementoFaltante(Jugador,ElementoFaltante),cuentaConHerramientasNecesarias(Jugador,ElementoFaltante)).
+
 elementoPrimitivo(Elemento):-
-    jugador(_,Elementos),
+    elementosExistentes(Elementos),
     member(Elemento,Elementos),
     noSeConstruyeAPartirDeNada(Elemento).
 
+elementosExistentes(Elementos):-
+    jugador(_,Elementos).
+elementosExistentes(Elementos):-
+    elemento(_,Elementos).
+elementosExistentes(Elementos):-
+    findall(Elemento,elemento(Elemento,_),Elementos).
+%Con estas clausulas resuelvo que en caso de que se agrege un elemento en alguna parte de la base de conocimiento 
+%(ya sea apareciendo en el inventario de un jugador, en los ingredientes de un elemento, o comoo un nuevo elemento a construir) pueda ser reconocido
+
 noSeConstruyeAPartirDeNada(Elemento):-
     not(elemento(Elemento,_)).
+
+elementoFaltante(Jugador,Elemento):-
+    elementosExistentes(Elementos),
+    member(Elemento,Elementos),
+    not(poseeEnInventario(Jugador,Elemento)).
+
+/* Punto 6
+Conocer quienGana, que es quien puede construir más cosas.
+Por ejemplo, cata gana, pero beto no. */
+
+quienGana(Jugador):-
+    construyeMasQueRivales(Jugador).
+    
+construyeMasQueRivales(Jugador):-
+    cantidadCosasAConstruir(Jugador,CantidadCosas),
+    forall(rivales(Jugador,Jugador2),(cantidadCosasAConstruir(Jugador2,CantidadCosas2), CantidadCosas>CantidadCosas2)).
+
+rivales(Jugador1,Jugador2):-
+    jugador(Jugador1,_),
+    jugador(Jugador2,_),
+    Jugador1 \= Jugador2.
+
+cantidadCosasAConstruir(Jugador,CantidadCosas):-
+    jugador(Jugador,_),
+    findall(Elemento,puedeConstruir(Jugador,Elemento),Elementos),
+    length(Elementos,CantidadCosas).
 
