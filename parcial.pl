@@ -72,8 +72,42 @@ Además, las cucharas y círculos sirven cuando soportan la cantidad de ingredie
 Por ejemplo, beto puede construir el silicio (porque tiene tierra y tiene el libro inerte, que le sirve para el silicio), 
 pero no puede construir la presión (porque a pesar de tener hierro y vapor, no cuenta con herramientas que le sirvan para la presión). 
 Ana, por otro lado, sí puede construir silicio y presión. */
-/* 
+
 puedeConstruir(Jugador,Elemento):-
-    estaVivo(Elemento),
     tieneIngredientesPara(Jugador, Elemento),
-    cuentaConHerramientas(Jugador) */
+    cuentaConHerramientasNecesarias(Jugador,Elemento).
+
+cuentaConHerramientasNecesarias(Jugador,Elemento):-
+    estaVivo(Elemento),
+    herramienta(Jugador,libro(vida)).
+
+cuentaConHerramientasNecesarias(Jugador,Elemento):-
+    not(estaVivo(Elemento)),
+    herramienta(Jugador,libro(inerte)).
+
+cuentaConHerramientasNecesarias(Jugador,Elemento):-
+    elemento(Elemento,Ingredientes),
+    length(Ingredientes,CantidadDeIngredientes),
+    utensillosSoportanIngredientes(Jugador,CantidadDeIngredientes).
+
+utensillosSoportanIngredientes(Jugador,CantidadDeIngredientes):-
+    herramienta(Jugador,cuchara(Centimetros)),
+    Capacidad is Centimetros / 10,
+    Capacidad > CantidadDeIngredientes.
+
+utensillosSoportanIngredientes(Jugador,CantidadDeIngredientes):-
+    herramienta(Jugador,circulo(Diametro,Niveles)),
+    Capacidad is (Diametro/100) * Niveles,
+    Capacidad > CantidadDeIngredientes.
+
+/* Punto 5
+Saber si alguien es todopoderoso, que es cuando tiene todos los elementos primitivos (los que no pueden construirse a partir de nada) 
+y además cuenta con herramientas que sirven para construir cada elemento que no tenga.
+Por ejemplo, cata es todopoderosa, pero beto no. */
+
+/* esTodoPoderoso(Jugador):-
+    tieneTodosLosElementosPrimitivos(Jugador).
+    cuentaConHerramientasParaElementosFaltantes(Jugador).
+
+tieneTodosLosElementosPrimitivos(Jugador):-
+     */
